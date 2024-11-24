@@ -1,1 +1,7 @@
 /target
+
+# generated files by jsql
+## definitions
+*.djsql
+## queries
+*.jsql
