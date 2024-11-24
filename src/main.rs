@@ -4,7 +4,11 @@ use sqlparser::{
     dialect::GenericDialect,
     parser::Parser,
 };
-use std::{io::{self, Read}, path::Path};
+use std::{
+    fs::File,
+    io::{self, Write},
+    path::Path,
+};
 use tokio::net::{TcpListener, TcpStream};
 
 #[tokio::main]
@@ -105,7 +109,14 @@ fn create_table(statement: &CreateTable) -> io::Result<()> {
         create_table_buffer.put(column_name);
     }
 
-    println!("Create table hex: {:#?}", create_table_buffer.bytes());
+    let file = File::create(format!("{}.djsql", table_name));
+
+    if file.is_err() {
+        return Err(io::ErrorKind::Other.into());
+    }
+
+    let mut file = file.unwrap();
+    let _ = file.write_all(&create_table_buffer[..]);
 
     Ok(())
 }
