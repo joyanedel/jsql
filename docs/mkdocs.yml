@@ -1,3 +1,6 @@
 site_name: JSQL Documentation
 theme:
   name: material
+nav:
+  - Project: index.md
+  - Implementation: implementations.md
