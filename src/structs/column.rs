@@ -1,9 +1,11 @@
-use std::io::{self, ErrorKind};
+use std::io::ErrorKind;
 
+#[derive(PartialEq)]
 pub enum ColumnDataType {
     Varchar(u8),
 }
 
+#[derive(PartialEq)]
 pub struct Column {
     name: String,
     column_type: ColumnDataType,
@@ -17,7 +19,7 @@ impl TryFrom<&[u8]> for ColumnDataType {
 
         match _type {
             0 => Ok(Self::Varchar(length.to_owned())),
-            _ => unimplemented!()
+            _ => unimplemented!(),
         }
     }
 }
@@ -34,11 +36,32 @@ impl TryFrom<&[u8]> for Column {
 
         // from byte 3 to .. is the name
         let column_name_length = value.get(2).unwrap();
-        let name = String::from_utf8_lossy(&value[3..(3 + (column_name_length.to_owned() as usize))]);
+        let name =
+            String::from_utf8_lossy(&value[3..(3 + (column_name_length.to_owned() as usize))]);
 
         Ok(Self {
             name: name.to_string(),
-            column_type
+            column_type,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::structs::column::ColumnDataType;
+
+    use super::Column;
+
+    #[test]
+    fn column_correctly_parsed_from_well_defined_ref_u8() {
+        let source = [0_u8, 10, 2, 97, 98];
+        let result = Column::try_from(source.as_ref());
+
+        assert!(result.is_ok_and(|r| {
+            r == Column {
+                name: "ab".to_string(),
+                column_type: ColumnDataType::Varchar(10)
+            }
+        }))
     }
 }
