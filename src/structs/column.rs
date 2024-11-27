@@ -9,12 +9,25 @@ pub struct Column {
     column_type: ColumnDataType,
 }
 
+impl TryFrom<&[u8]> for ColumnDataType {
+    type Error = ErrorKind;
+    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
+        let _type = value.first().unwrap();
+        let length = value.get(1).unwrap();
+
+        match _type {
+            0 => Ok(Self::Varchar(length.to_owned())),
+            _ => unimplemented!()
+        }
+    }
+}
+
 impl TryFrom<&[u8]> for Column {
     type Error = ErrorKind;
     fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
-        let column_type: io::Result<ColumnDataType> = todo!();
+        let column_type = ColumnDataType::try_from(&value[..2]);
         if column_type.is_err() {
-            return Err(self::ErrorKind::Other.into());
+            return Err(self::ErrorKind::Other);
         }
 
         let column_type = column_type.unwrap();
