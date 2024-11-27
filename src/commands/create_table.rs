@@ -47,6 +47,9 @@ pub fn create_table(statement: &CreateTable) -> io::Result<()> {
     create_table_buffer.put_u8(columns.len() as u8);
     for (column_name, column_data_type, column_value_length) in columns {
         let column_name = column_name.value.as_bytes();
+        let column_used_bytes = 1_u32 + 1 + 1 + column_name.len() as u32;
+        // store column used bytes before all other bytes
+        create_table_buffer.put_u32(column_used_bytes);
         // put column value type
         create_table_buffer.put_u8(column_data_type);
         // put column value length
@@ -54,7 +57,7 @@ pub fn create_table(statement: &CreateTable) -> io::Result<()> {
         // put column name length
         create_table_buffer.put_u8(column_name.len() as u8);
         // put column name
-        create_table_buffer.put(column_name);
+        create_table_buffer.put_slice(column_name);
     }
 
     let file = File::create(format!("{}.djsql", table_name));
