@@ -7,8 +7,8 @@ pub enum ColumnDataType {
 
 #[derive(PartialEq)]
 pub struct Column {
-    name: String,
-    column_type: ColumnDataType,
+    pub name: String,
+    pub column_type: ColumnDataType,
 }
 
 impl TryFrom<&[u8]> for ColumnDataType {
